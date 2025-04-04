@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run JS Logic</title>
+</head>
+<body>
+    <h1>Generating Download Link...</h1>
+
+    <script>
+        // Embed data from Flask
+        const serverData = {{ data | tojson }};
+
+        // Patch global values (if needed)
+        window.__SIGN_DATA__ = serverData;
+        console.log(window.__SIGN_DATA__)
+    </script>
+
+    <!-- Load your local JS file (served via Flask static or file://) -->
+    <script src="{{ url_for('static', filename='mainList.0eb9267b.js') }}"></script>
+    <script src="{{ url_for('static', filename='chunk-vendors.29c18f73.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    
+    
+</body>
+</html>
