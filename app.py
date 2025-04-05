@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import requests
 import browser_cookie3
 import base64
+from urllib.parse import unquote
 
 
 
@@ -102,14 +103,22 @@ def sign2(j: str, r: str) -> bytes:
 
 
 @app.route("/files", methods=["GET"])
-def list_files():
+def list_files(dir=None, page=1, num=100, showempty=0):
     domain = "1024terabox.com"
     params = request.args.to_dict()
-    response = make_request("list", domain, params).get("list", f"An error occurred!")
-    keys_to_remove = ["category", "extent_int2", "extent_tinyint7", "extent_tinyint9","from_type", "local_ctime", "local_mtime", "oper_id", "owner_id", "owner_type", "pl","play_forbid", "real_category", "server_atime", "server_ctime", "server_mtime", "share", "tkbind_id", "unlist","wpfile"]
+    # params["dir"] = str(request.args.get("dir"))
+    # params["page"] = int(request.args.get("page"))
+    # params["num"] = int(request.args.get("num"))
+    # params["showempty"] = int(request.args.get("showempty"))
+
+
+    print(params)
+    response = make_request("list", domain, params, mode="page").get("list", f"An error occurred!")
+    keys_to_remove = ["md5", "category", "extent_int2", "extent_tinyint7", "extent_tinyint9","from_type", "local_ctime", "local_mtime", "oper_id", "owner_id", "owner_type", "pl","play_forbid", "real_category", "server_atime", "server_ctime", "server_mtime", "share", "tkbind_id", "unlist","wpfile"]
     for eachkey in keys_to_remove:
         for eachitem in response:
-            eachitem.pop(eachkey)
+            if eachkey in eachitem:
+                eachitem.pop(eachkey)
     return jsonify(response)
 
 
@@ -140,6 +149,9 @@ def start_download():
     base64_sign = base64.b64encode(raw_sign).decode() # Ensure correct byte encoding
 
     fidlist = params.get("id", "")
+    
+    fidlist = f"[{fidlist}]"
+    print(fidlist)
     downparam = {
         "fidlist": fidlist, 
         "type":"dlink",
